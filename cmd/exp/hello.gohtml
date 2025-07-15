@@ -1,0 +1,20 @@
+<h1>Hello, {{.Name}}</h1>
+
+Age {{.Age}}<br>
+
+My favourite foods are:<br>
+<ol>
+    <ul>
+        {{range .FavouriteFoods}}
+            <li>{{.}}</li>
+        {{end}}
+    </ul>
+</ol>
+
+My siblings are:<br>
+<ul>
+    {{range .Siblings}}
+        <li>{{.Name}} who is my {{if eq .Sex "male" }}brother{{else}}sister{{end}} and they are {{.Age}} years old.
+        </li>
+    {{end}}
+</ul>
