@@ -1,0 +1,22 @@
+package controllers
+
+import (
+	"lenslocked/views"
+	"net/http"
+)
+
+type Static struct {
+	Template views.Template
+}
+
+// can be used as an http.Handler interface implementation,
+// as ServeHTTP satisfies it.
+func (static Static) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	static.Template.Execute(w, nil)
+}
+
+func StaticHandler(tpl views.Template) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		tpl.Execute(w, nil)
+	}
+}

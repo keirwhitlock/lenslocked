@@ -2,43 +2,35 @@ package main
 
 import (
 	"fmt"
-	"html/template"
-	"log"
-	"net/http"
-	"path/filepath"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"lenslocked/controllers"
+	"lenslocked/views"
+	"net/http"
 )
 
-func executeTemplate(w http.ResponseWriter, filepath string) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	tpl, err := template.ParseFiles(filepath)
-	if err != nil {
-		log.Printf("Error parsing template: %s", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	err = tpl.Execute(w, nil)
-	if err != nil {
-		log.Printf("Error executing template: %s", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-}
-
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	executeTemplate(w, filepath.Join("templates", "home.gohtml"))
-}
-
-func contactHandler(w http.ResponseWriter, r *http.Request) {
-	executeTemplate(w, filepath.Join("templates", "contact.gohtml"))
-}
-
-func faqHandler(w http.ResponseWriter, r *http.Request) {
-	executeTemplate(w, filepath.Join("templates", "faq.gohtml"))
-}
+//func executeTemplate(w http.ResponseWriter, filepath string) {
+//	tpl, err := views.Parse(filepath)
+//	if err != nil {
+//		log.Printf("Error parsing template: %s", err)
+//		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+//		return
+//	}
+//
+//	tpl.Execute(w, nil)
+//}
+//
+//func homeHandler(w http.ResponseWriter, r *http.Request) {
+//	executeTemplate(w, filepath.Join("templates", "home.gohtml"))
+//}
+//
+//func contactHandler(w http.ResponseWriter, r *http.Request) {
+//	executeTemplate(w, filepath.Join("templates", "contact.gohtml"))
+//}
+//
+//func faqHandler(w http.ResponseWriter, r *http.Request) {
+//	executeTemplate(w, filepath.Join("templates", "faq.gohtml"))
+//}
 
 func teapotHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusTeapot)
@@ -55,26 +47,44 @@ func getGallery(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	r := chi.NewRouter()
+	router := chi.NewRouter()
+
+	//homeTpl, err := views.Parse(filepath.Join("templates", "home.gohtml"))
+	//if err != nil {
+	//	panic(err)
+	//}
+	//
+	//router.Method(http.MethodGet, "/", controllers.Static{
+	//	Template: homeTpl,
+	//})
 
 	// chi middleware
 	// https://go-chi.io/#/pages/middleware?id=logger
-	r.Use(middleware.Logger)
-	r.Use(middleware.RealIP)
+	router.Use(middleware.Logger)
+	router.Use(middleware.RealIP)
 
 	// chi routes
-	r.Get("/", homeHandler)
-	r.Get("/contact", contactHandler)
-	r.Get("/faq", faqHandler)
-	r.Get("/teapot", teapotHandler)
+	tpl := views.Must(views.Parse("templates/home.gohtml"))
+	router.Get("/", controllers.StaticHandler(tpl))
+
+	tpl = views.Must(views.Parse("templates/contact.gohtml"))
+	router.Get("/contact", controllers.StaticHandler(tpl))
+
+	tpl = views.Must(views.Parse("templates/faq.gohtml"))
+	router.Get("/faq", controllers.StaticHandler(tpl))
+
+	tpl = views.Must(views.Parse("templates/login.gohtml"))
+	router.Get("/login", controllers.StaticHandler(tpl))
+
+	router.Get("/teapot", teapotHandler)
 
 	// https://go-chi.io/#/pages/routing?id=routing-patterns-amp-url-parameters
-	r.Get("/galleries/{id}", getGallery)
+	router.Get("/galleries/{id}", getGallery)
 
-	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+	router.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "404 page not found", http.StatusNotFound)
 	})
 
 	fmt.Println("Starting the server on port :3000")
-	http.ListenAndServe(":3000", r) // passing in nil as a Handler, uses the DefaultServeMux
+	http.ListenAndServe(":3000", router) // passing in nil as a Handler, uses the DefaultServeMux
 }

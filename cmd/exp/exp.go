@@ -1,57 +1,45 @@
 package main
 
 import (
-	"html/template"
-	"os"
+	"errors"
+	"fmt"
 )
 
-type Sibling struct {
-	Name string
-	Age  int
-	Sex  string
+func Connect() error {
+	return errors.New("connection failed")
 }
 
-type User struct {
-	Name           string
-	Age            int
-	FavouriteFoods []string
-	Siblings       []Sibling
-	//Bio  template.HTML
-}
+//
+//func CreateUser() error {
+//	err := Connect()
+//	if err != nil {
+//		return fmt.Errorf("create user: %w", err)
+//	}
+//	return nil
+//}
+//
+//func CreateOrg() error {
+//	err := CreateUser()
+//	if err != nil {
+//		return fmt.Errorf("create org: %w", err)
+//	}
+//	return nil
+//}
 
 func main() {
-	t, err := template.ParseFiles("hello.gohtml")
-	if err != nil {
-		panic(err)
-	}
+	numbers := []int{1, 2, 3}
+	fmt.Println(numbers[4])
 
-	user := User{
-		Name: "John Doe",
-		Age:  43,
-		FavouriteFoods: []string{
-			"Curry",
-			"Fish & Chips",
-			"Eggs",
-		},
-		Siblings: []Sibling{
-			Sibling{
-				Name: "Bobby",
-				Age:  43,
-				Sex:  "male",
-			},
-			Sibling{
-				Name: "Gemma",
-				Age:  33,
-				Sex:  "female",
-			},
-		},
-		//Bio:  `<script>alert("Haha, you have been h4x0r3d!");</script>`,
-	}
-
-	// is.Stdout - io.Writer
-	// user - interface{}
-	err = t.Execute(os.Stdout, user)
+	err := Connect()
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
+	//err := CreateUser()
+	//if err != nil {
+	//	log.Println(err)
+	//}
+	//err = CreateOrg()
+	//if err != nil {
+	//	log.Println(err)
+	//}
 }
