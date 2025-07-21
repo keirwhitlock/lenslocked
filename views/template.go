@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"io/fs"
 	"log"
 	"net/http"
 )
@@ -29,11 +30,11 @@ func (t Template) Execute(w http.ResponseWriter, data interface{}) {
 	return
 }
 
-func Parse(filepath string) (Template, error) {
+func ParseFS(fs fs.FS, pattern string) (Template, error) {
 
 	errNoSuchTemplate := template.Error{ErrorCode: template.ErrNoSuchTemplate}
 
-	htmlTpl, err := template.ParseFiles(filepath)
+	htmlTpl, err := template.ParseFS(fs, pattern)
 	if err != nil {
 		e := err
 		if errors.Is(err, &errNoSuchTemplate) {
