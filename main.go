@@ -31,14 +31,15 @@ func main() {
 	router.Use(middleware.RealIP)
 
 	// chi routes
-	tpl := views.Must(views.ParseFS(templates.FS, "home.gohtml"))
+	tpl := views.Must(views.ParseFS(templates.FS, "home.gohtml", "tailwind.gohtml"))
 	router.Get("/", controllers.StaticHandler(tpl))
 
-	tpl = views.Must(views.ParseFS(templates.FS, "contact.gohtml"))
+	tpl = views.Must(views.ParseFS(templates.FS, "contact.gohtml", "tailwind.gohtml"))
 	router.Get("/contact", controllers.StaticHandler(tpl))
 
-	tpl = views.Must(views.ParseFS(templates.FS, "faq.gohtml"))
-	router.Get("/faq", controllers.StaticHandler(tpl))
+	router.Get("/faq", controllers.FAQ(
+		views.Must(views.ParseFS(templates.FS, "faq.gohtml", "tailwind.gohtml"))),
+	)
 
 	tpl = views.Must(views.ParseFS(templates.FS, "login.gohtml"))
 	router.Get("/login", controllers.StaticHandler(tpl))
@@ -47,6 +48,6 @@ func main() {
 		http.Error(w, "404 page not found", http.StatusNotFound)
 	})
 
-	fmt.Println("Starting the server on port :3000")
+	fmt.Println("Starting the server on port :80")
 	http.ListenAndServe(":3000", router) // passing in nil as a Handler, uses the DefaultServeMux
 }

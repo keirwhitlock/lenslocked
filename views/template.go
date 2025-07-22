@@ -30,11 +30,11 @@ func (t Template) Execute(w http.ResponseWriter, data interface{}) {
 	return
 }
 
-func ParseFS(fs fs.FS, pattern string) (Template, error) {
+func ParseFS(fs fs.FS, pattern ...string) (Template, error) {
 
 	errNoSuchTemplate := template.Error{ErrorCode: template.ErrNoSuchTemplate}
 
-	htmlTpl, err := template.ParseFS(fs, pattern)
+	htmlTpl, err := template.ParseFS(fs, pattern...)
 	if err != nil {
 		e := err
 		if errors.Is(err, &errNoSuchTemplate) {

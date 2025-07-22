@@ -27,19 +27,21 @@ func Connect() error {
 //}
 
 func main() {
-	numbers := []int{1, 2, 3}
-	fmt.Println(numbers[4])
+	fib := []int{1, 1, 2, 3, 5, 8}
+	Demo(fib...)
+}
 
-	err := Connect()
-	if err != nil {
-		fmt.Println(err)
+func Demo(numbers ...int) {
+	for _, number := range numbers {
+		fmt.Print(number, " ")
 	}
-	//err := CreateUser()
-	//if err != nil {
-	//	log.Println(err)
-	//}
-	//err = CreateOrg()
-	//if err != nil {
-	//	log.Println(err)
-	//}
+	fmt.Println()
+}
+
+func Sum(numbers ...int) int {
+	sum := 0
+	for i := 0; i < len(numbers); i++ {
+		sum += numbers[i]
+	}
+	return sum
 }
