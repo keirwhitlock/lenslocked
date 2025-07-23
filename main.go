@@ -44,6 +44,9 @@ func main() {
 	tpl = views.Must(views.ParseFS(templates.FS, "login.gohtml"))
 	router.Get("/login", controllers.StaticHandler(tpl))
 
+	router.Get("/signup", controllers.StaticHandler(
+		views.Must(views.ParseFS(templates.FS, "signup.gohtml", "tailwind.gohtml"))))
+
 	router.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "404 page not found", http.StatusNotFound)
 	})
