@@ -30,6 +30,14 @@ func main() {
 	router.Use(middleware.Logger)
 	router.Use(middleware.RealIP)
 
+	var usersC controllers.Users
+
+	usersC.Templates.New = views.Must(views.ParseFS(
+		templates.FS, "signup.gohtml", "tailwind.gohtml"))
+
+	router.Get("/signup", usersC.New)
+	router.Post("/signup", usersC.Create)
+
 	// chi routes
 	tpl := views.Must(views.ParseFS(templates.FS, "home.gohtml", "tailwind.gohtml"))
 	router.Get("/", controllers.StaticHandler(tpl))
@@ -43,9 +51,6 @@ func main() {
 
 	tpl = views.Must(views.ParseFS(templates.FS, "login.gohtml"))
 	router.Get("/login", controllers.StaticHandler(tpl))
-
-	router.Get("/signup", controllers.StaticHandler(
-		views.Must(views.ParseFS(templates.FS, "signup.gohtml", "tailwind.gohtml"))))
 
 	router.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "404 page not found", http.StatusNotFound)

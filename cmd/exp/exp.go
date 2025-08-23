@@ -1,47 +1,78 @@
 package main
 
 import (
-	"errors"
+	"database/sql"
 	"fmt"
+	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-func Connect() error {
-	return errors.New("connection failed")
+type PostgresConfig struct {
+	Host     string
+	Port     string
+	User     string
+	Password string
+	Database string
+	SSLMode  string
 }
 
-//
-//func CreateUser() error {
-//	err := Connect()
-//	if err != nil {
-//		return fmt.Errorf("create user: %w", err)
-//	}
-//	return nil
-//}
-//
-//func CreateOrg() error {
-//	err := CreateUser()
-//	if err != nil {
-//		return fmt.Errorf("create org: %w", err)
-//	}
-//	return nil
-//}
+func (cfg PostgresConfig) String() string {
+	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.Database, cfg.SSLMode)
+}
 
 func main() {
-	fib := []int{1, 1, 2, 3, 5, 8}
-	Demo(fib...)
-}
 
-func Demo(numbers ...int) {
-	for _, number := range numbers {
-		fmt.Print(number, " ")
+	cfg := PostgresConfig{
+		Host:     "localhost",
+		Port:     "5432",
+		User:     "baloo",
+		Password: "junglebook",
+		Database: "lenslocked",
+		SSLMode:  "disable",
 	}
-	fmt.Println()
-}
 
-func Sum(numbers ...int) int {
-	sum := 0
-	for i := 0; i < len(numbers); i++ {
-		sum += numbers[i]
+	db, err := sql.Open("pgx", cfg.String())
+	if err != nil {
+		panic(err)
 	}
-	return sum
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Successfully connected to database")
+
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS users (
+	  id SERIAL PRIMARY KEY,
+	  name TEXT,
+	  email TEXT NOT NULL
+	);
+	
+	CREATE TABLE IF NOT EXISTS orders (
+	  id SERIAL PRIMARY KEY,
+	  user_id INT NOT NULL,
+	  amount INT,
+	  description TEXT
+	);`)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Tables created.")
+
+	_, err = db.Exec(`
+		INSERT INTO users(name, email) VALUES('Keir Whitlock', 'demo@user.com');
+	`)
+	if err != nil {
+		panic(err)
+	}
+
+	name := "Jon Calhoun"
+	email := "job@calhoun.io"
+	_, err = db.Exec(`
+		INSERT INTO users(name, email) 
+    	VALUES($1, $2);`, name, email)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("User created.")
 }
