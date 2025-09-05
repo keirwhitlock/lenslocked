@@ -66,11 +66,13 @@ func main() {
 		panic(err)
 	}
 
-	name := "Jon Calhoun"
-	email := "job@calhoun.io"
+	name := "',''); DROP TABLE users; --"
+	email := "jon@calhoun.io"
+
 	_, err = db.Exec(`
-		INSERT INTO users(name, email) 
-    	VALUES($1, $2);`, name, email)
+		INSERT INTO users (name, email)
+		VALUES ($1, $2);`, name, email)
+
 	if err != nil {
 		panic(err)
 	}
