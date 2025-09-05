@@ -59,22 +59,41 @@ func main() {
 	}
 	fmt.Println("Tables created.")
 
-	_, err = db.Exec(`
-		INSERT INTO users(name, email) VALUES('Keir Whitlock', 'demo@user.com');
-	`)
+	//_, err = db.Exec(`
+	//	INSERT INTO users(name, email) VALUES('Keir Whitlock', 'demo@user.com');
+	//`)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//
+	//name := "New User"
+	//email := "new@calhoun.io"
+	//
+	//row := db.QueryRow(`
+	//	INSERT INTO users (name, email)
+	//	VALUES ($1, $2) RETURNING id;`, name, email)
+	//
+	//var id int
+	//err = row.Scan(&id)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//fmt.Println("User created. id =", id)
+
+	id := 100
+	row := db.QueryRow(`
+SELECT name, email
+FROM users
+WHERE id=$1;`, id)
+
+	var name, email string
+	err = row.Scan(&name, &email)
+	if err == sql.ErrNoRows {
+		fmt.Println("Error, no rows!")
+	}
 	if err != nil {
 		panic(err)
 	}
 
-	name := "',''); DROP TABLE users; --"
-	email := "jon@calhoun.io"
-
-	_, err = db.Exec(`
-		INSERT INTO users (name, email)
-		VALUES ($1, $2);`, name, email)
-
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("User created.")
+	fmt.Printf("User information: name=%s, email=%s\n", name, email)
 }
